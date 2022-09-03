@@ -1,0 +1,10 @@
+# Folders and files to be ignored by git
+__pycache__/
+.coverage
+.env
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+tmp/
+venv/
+**/logs/
