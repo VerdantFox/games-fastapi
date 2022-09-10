@@ -4,7 +4,6 @@ from typing import Optional
 
 import pydantic
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
-from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, select
 
 from api.database import create_db_and_tables, get_session
@@ -51,7 +50,7 @@ def register_blueprints(app: FastAPI) -> None:
 
 
 @app.on_event("startup")
-def on_startup() -> None:
+def on_startup() -> None:  # pragma: no cover
     """Run these functions on app startup."""
     create_db_and_tables()
     register_blueprints(app)
@@ -60,7 +59,7 @@ def on_startup() -> None:
 # -----------------------------------------------------------------------------
 # Games endpoints
 # -----------------------------------------------------------------------------
-@games_router.post("", response_model=GameRead)
+@games_router.post("", response_model=GameRead, status_code=201)
 def create_game(*, session: Session = Depends(get_session), game: GameCreate) -> Game:
     """Create a new game."""
     db_game = Game.from_orm(game)
@@ -75,8 +74,8 @@ def read_games(
     *,
     session: Session = Depends(get_session),
     offset: Optional[int] = Query(default=0, ge=0),
-    limit: Optional[int] = Query(default=100, gte=1, lte=100),
-    name: Optional[str] = Query(None, min_length=1),
+    limit: Optional[int] = Query(default=100, ge=1, le=100),
+    name: Optional[str] = Query(None, min_length=1, alias="filter[name]"),
     avg_rating_ge: Optional[float] = Query(
         default=None, ge=0, le=5, alias="filter[avg_rating][ge]"
     ),
@@ -92,7 +91,7 @@ def read_games(
         query = query.where(col(Game.avg_rating) >= avg_rating_ge)
     if avg_rating_le is not None:
         query = query.where(col(Game.avg_rating) <= avg_rating_le)
-    return session.exec(query.offset(offset).limit(limit)).all()
+    return session.exec(query.offset(offset).limit(limit).order_by(Game.id)).all()
 
 
 @games_router.get("/{game_id}", response_model=GameReadWithReviews)
@@ -153,20 +152,16 @@ def update_game_avg_rating(game: Game, session: Session) -> None:
     session.commit()
 
 
-@reviews_router.post("", response_model=ReviewRead)
+@reviews_router.post("", response_model=ReviewRead, status_code=201)
 def create_review(
     *, session: Session = Depends(get_session), review: ReviewCreate
 ) -> Review:
     """Create a new review."""
     db_review = Review.from_orm(review)
+    if not (game := session.get(Game, review.game_id)):
+        raise HTTPException(status_code=404, detail="Game not found")
     session.add(db_review)
-    try:
-        session.commit()
-    except IntegrityError as e:
-        msg = f"game.id {db_review.game_id} does not exist."
-        raise HTTPException(status_code=404, detail=msg) from e
-    session.refresh(db_review)
-    game = db_review.game
+    session.commit()
     update_game_avg_rating(game=game, session=session)
     return db_review
 
@@ -175,11 +170,15 @@ def create_review(
 def read_reviews(
     *,
     session: Session = Depends(get_session),
-    offset: int = 0,
-    limit: int = Query(default=100, lte=100),
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=100),
+    game_id: int = Query(None, ge=1, alias="filter[game_id]"),
 ) -> list[Review]:
     """Read all reviews."""
-    return session.exec(select(Review).offset(offset).limit(limit)).all()
+    query = select(Review)
+    if game_id:
+        query = query.where(Review.game_id == game_id)
+    return session.exec(query.offset(offset).limit(limit).order_by(Review.id)).all()
 
 
 @reviews_router.get("/{review_id}", response_model=ReviewReadWithGame)

@@ -1,18 +1,11 @@
 """SQLModel models for working with both the database and FastAPI input/output."""
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import root_validator, validator
+from pydantic import NonNegativeInt, root_validator, validator
 from sqlalchemy import Column, DateTime
 from sqlalchemy.sql import func
 from sqlmodel import Field, Relationship, SQLModel
-
-
-def validate_min_players(cls: Any, value: int) -> int:
-    """min_players should always be >= 0."""
-    if value < 0:
-        raise ValueError("min_players must be >= 0")
-    return value
 
 
 def validate_max_players(cls: Any, fields: dict) -> dict:
@@ -32,11 +25,12 @@ class GameBase(SQLModel):
     name: str = Field(index=True)
     description: Optional[str] = None
     company: Optional[str] = Field(default=None, index=True)
-    genre: str = Field(index=True)
-    release_date: Optional[date] = Field(default=None, index=True)
-    min_players: int = Field(index=True, ge=0)
-    max_players: int = Field(index=True, ge=0)
-    duration: int = Field(index=True)
+    release_year: Optional[int] = Field(default=None, index=True)
+    genre: Optional[str] = Field(index=True)
+    duration: NonNegativeInt = Field(index=True)
+    min_age: Optional[NonNegativeInt] = Field(default=None, index=True)
+    min_players: NonNegativeInt = Field(index=True)
+    max_players: NonNegativeInt = Field(index=True)
     image: Optional[str] = None
 
 
@@ -51,6 +45,12 @@ class Game(GameBase, table=True):
     reviews: List["Review"] = Relationship(
         back_populates="game", sa_relationship_kwargs={"cascade": "delete"}
     )
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), server_default=func.now())
+    )
+    updated_at: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
 
 
 class GameCreate(GameBase):
@@ -59,9 +59,6 @@ class GameCreate(GameBase):
     Equivalent to GameBase, re-written for documentation purposes.
     """
 
-    _min_players_validation = validator("min_players", allow_reuse=True)(
-        validate_min_players
-    )
     _max_players_validation = root_validator(allow_reuse=True)(validate_max_players)
 
 
@@ -70,6 +67,12 @@ class GameRead(GameBase):
 
     avg_rating: Optional[float] = None
     id: int
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), server_default=func.now())
+    )
+    updated_at: Optional[datetime] = Field(
+        sa_column=Column(DateTime(timezone=True), onupdate=func.now())
+    )
 
 
 class GameUpdate(SQLModel):
@@ -78,16 +81,14 @@ class GameUpdate(SQLModel):
     name: Optional[str] = None
     description: Optional[str] = None
     company: Optional[str] = None
-    release_date: Optional[date] = None
-    min_players: Optional[int] = None
-    max_players: Optional[int] = None
+    release_year: Optional[int] = None
     genre: Optional[str] = None
-    duration: Optional[int] = None
+    duration: Optional[NonNegativeInt] = None
+    min_age: Optional[NonNegativeInt] = Field(default=None, index=True)
+    min_players: Optional[NonNegativeInt] = None
+    max_players: Optional[NonNegativeInt] = None
     image: Optional[str] = None
 
-    _min_players_validation = validator("min_players", allow_reuse=True)(
-        validate_min_players
-    )
     _max_players_validation = root_validator(allow_reuse=True)(validate_max_players)
 
 
@@ -102,8 +103,8 @@ class ReviewBase(SQLModel):
     """Review base model that most other Reviews inherit from."""
 
     game_id: int = Field(foreign_key="game.id")
-    rating: int = Field(index=True, ge=1, le=5)
-    description: Optional[str] = None
+    rating: int = Field(index=True)
+    comment: Optional[str] = None
 
 
 class Review(ReviewBase, table=True):
@@ -152,7 +153,7 @@ class ReviewUpdate(SQLModel):
     """
 
     rating: Optional[int] = None
-    description: Optional[str] = None
+    comment: Optional[str] = None
     _rating_validation = validator("rating", allow_reuse=True)(validate_rating)
 
 

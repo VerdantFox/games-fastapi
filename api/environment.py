@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     postgres_port: int
     postgres_user: str
     postgres_password: str
+    test_db: str = "test_db"
     in_mem_db: bool = False
     echo_db: bool = False
 
