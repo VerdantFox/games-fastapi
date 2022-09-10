@@ -8,6 +8,9 @@ from sqlalchemy.sql import func
 from sqlmodel import Field, Relationship, SQLModel
 
 
+# -----------------------------------------------------------------------------
+# Games
+# -----------------------------------------------------------------------------
 def validate_max_players(cls: Any, fields: dict) -> dict:
     """max_players should always be >= min_players."""
     min_players = fields.get("min_players")
@@ -92,6 +95,9 @@ class GameUpdate(SQLModel):
     _max_players_validation = root_validator(allow_reuse=True)(validate_max_players)
 
 
+# -----------------------------------------------------------------------------
+# Reviews
+# -----------------------------------------------------------------------------
 def validate_rating(cls: Any, value: int) -> int:
     """rating should always be between 1 and 5."""
     if not 1 <= value <= 5:
@@ -169,6 +175,9 @@ class ReviewReadWithGame(ReviewRead):
     game: GameRead
 
 
+# -----------------------------------------------------------------------------
+# General
+# -----------------------------------------------------------------------------
 class DeleteOk(SQLModel):
     """Model for delete output."""
 
