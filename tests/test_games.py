@@ -1,6 +1,6 @@
-"""test_games: tests for the /games endpoints"""
-import pytest
+"""test_games: tests for the /games endpoints."""
 from fastapi.testclient import TestClient
+import pytest
 from sqlmodel import Session
 
 from api.models import Game, GameCreate, GameRead, GameReadWithReviews, Review
@@ -72,7 +72,8 @@ GAMES_PARAMS = [
 
 
 @pytest.mark.parametrize(
-    "offset, limit, name, avg_rating_ge, avg_rating_le, expected_games", GAMES_PARAMS
+    ("offset", "limit", "name", "avg_rating_ge", "avg_rating_le", "expected_games"),
+    GAMES_PARAMS,
 )
 def test_read_games_succeeds(
     client: TestClient,

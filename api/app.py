@@ -1,4 +1,4 @@
-"""app: the FastAPI app with endpoints"""
+"""app: the FastAPI app with endpoints."""
 from fastapi import FastAPI
 
 from api import games, reviews
@@ -23,7 +23,7 @@ app = FastAPI(
 
 
 def register_blueprints(app: FastAPI) -> None:
-    """Add routes to the FastAPI app"""
+    """Add routes to the FastAPI app."""
     routes = [games.games_router, reviews.reviews_router]
     for route in routes:
         app.include_router(route)

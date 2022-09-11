@@ -11,7 +11,8 @@ from sqlmodel import Field, Relationship, SQLModel
 # -----------------------------------------------------------------------------
 # Games
 # -----------------------------------------------------------------------------
-def validate_max_players(cls: Any, fields: dict) -> dict:
+# flake8: ignore unused argument 'cls' because its required for the validator
+def validate_max_players(cls: Any, fields: dict) -> dict:  # noqa: U100
     """max_players should always be >= min_players."""
     min_players = fields.get("min_players")
     max_players = fields.get("max_players")
@@ -43,7 +44,8 @@ class Game(GameBase, table=True):
     It will create the "game" table in the database, automatically.
     """
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    # flake8: ignore shadow builtin to use id as a field name
+    id: Optional[int] = Field(default=None, primary_key=True)  # noqa: A003
     avg_rating: Optional[float] = Field(default=None, index=True)
     reviews: List["Review"] = Relationship(
         back_populates="game", sa_relationship_kwargs={"cascade": "delete"}
@@ -68,8 +70,9 @@ class GameCreate(GameBase):
 class GameRead(GameBase):
     """Game model for read output, where the "id" field is ALWAYS included."""
 
+    # flake8: ignore shadow builtin to use id as a field name
+    id: int  # noqa: A003
     avg_rating: Optional[float] = None
-    id: int
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now())
     )
@@ -98,8 +101,9 @@ class GameUpdate(SQLModel):
 # -----------------------------------------------------------------------------
 # Reviews
 # -----------------------------------------------------------------------------
-def validate_rating(cls: Any, value: int) -> int:
-    """rating should always be between 1 and 5."""
+# flake8: ignore unused argument 'cls' because its required for the validator
+def validate_rating(cls: Any, value: int) -> int:  # noqa: U100
+    """Rating should always be between 1 and 5."""
     if not 1 <= value <= 5:
         raise ValueError("rating must be between 1 and 5")
     return value
@@ -119,7 +123,8 @@ class Review(ReviewBase, table=True):
     It will create the "review" table in the database, automatically.
     """
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    # flake8: ignore shadow builtin to use id as a field name
+    id: Optional[int] = Field(default=None, primary_key=True)  # noqa: A003
     game: Game = Relationship(back_populates="reviews")
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now())
@@ -142,7 +147,8 @@ class ReviewCreate(ReviewBase):
 class ReviewRead(ReviewBase):
     """Review model for read output, where the "id" field is ALWAYS included."""
 
-    id: int
+    # flake8: ignore shadow builtin to use id as a field name
+    id: int  # noqa: A003
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now())
     )

@@ -1,8 +1,8 @@
-"""test_reviews: tests for the /reviews endpoints"""
+"""test_reviews: tests for the /reviews endpoints."""
 from typing import Any
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 from sqlmodel import Session
 
 from api.models import Game, Review, ReviewCreate
@@ -78,7 +78,9 @@ REVIEWS_PARAMS = [
 ]
 
 
-@pytest.mark.parametrize("offset, limit, game_id, expected_reviews", REVIEWS_PARAMS)
+@pytest.mark.parametrize(
+    ("offset", "limit", "game_id", "expected_reviews"), REVIEWS_PARAMS
+)
 def test_get_reviews_success(
     client: TestClient,
     load_games_and_reviews: list[Game],
@@ -113,7 +115,7 @@ INVALID_REVIEW_PARAMS = [
 ]
 
 
-@pytest.mark.parametrize("offset, limit, game_id", INVALID_REVIEW_PARAMS)
+@pytest.mark.parametrize(("offset", "limit", "game_id"), INVALID_REVIEW_PARAMS)
 def test_get_reviews_invalid_params(
     client: TestClient, offset: Any, limit: Any, game_id: Any
 ) -> None:

@@ -12,6 +12,6 @@ python --version
 python -m pip install --upgrade pip
 python -m pip install .
 rm -rf build
-rm -rf Games_FastAPI.egg-info
+rm -rf api/games_fastapi.egg-info
 pip uninstall -y Games-FastAPI
 pip freeze > requirements.txt

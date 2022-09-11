@@ -1,4 +1,4 @@
-"""environment: Recipes project operating environment details"""
+"""environment: Games project operating environment details."""
 from pydantic import BaseSettings
 
 MAJOR_VERSION = 1
@@ -7,7 +7,7 @@ VERSION = f"{MAJOR_VERSION}.{COMPATIBILITY_VERSION}"
 
 
 class Settings(BaseSettings):
-    """Configuration settings for the project
+    """Configuration settings for the project.
 
     These environment variables are used to configure the project. Environment
     variables are first read from the project root level ".env.dev" file,

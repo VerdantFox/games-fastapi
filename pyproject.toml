@@ -1,0 +1,184 @@
+# pyproject.toml: unified Python project metadata and tool configuration file
+# See PEP-518: https://www.python.org/dev/peps/pep-0518/
+
+
+# --------------------------------------------------------------------------
+# Project setup
+# --------------------------------------------------------------------------
+# Project Metadata
+# Reference: https://www.python.org/dev/peps/pep-0621/
+# Dependencies are specified in setup.cfg since setuptools does not support this file.
+[project]
+name = "games-fastapi"
+version = "1.0"
+description = "A simple example FastAPI API for games and game reviews."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+classifiers = [
+    "Framework :: FastAPI",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+]
+maintainers = [
+    {name = "Theodore Williams", email = "theodore.f.williams@gmail.com"},
+]
+# Dependencies specified here should ideally not be pinned, unless
+# recommended by the package itself. This follows best practices
+# established by PyPA:
+#   https://packaging.python.org/discussions/install-requires-vs-requirements/
+dependencies = [
+  # ----------------------------- Code quality -----------------------------
+  # Bandit, used for checks of common Python security problems
+  "bandit",
+  # Black, used for code styling
+  "black",
+  # Flake8, used for code formatting
+  "flake8",
+  # flake8-bugbear checks for bare except, mutable defaults, and much else.
+  "flake8-bugbear",
+  # flake8-builtins checks for name conflicts
+  "flake8-builtins",
+  # A plugin which complements Flake8
+  "flake8-comprehensions",
+  # Flake8-docstrings, used to verify docstrings
+  "flake8-docstrings",
+  # Flake8-polyfill, provides compatibility helpers for Flake8 plugins
+  "flake8-polyfill",
+  # flake8-pyproject, used to configure flake8 with pyproject.toml
+    "flake8-pyproject",
+  # Flake8-pytest-style scans the style of pytest sources
+  "flake8-pytest-style",
+  # Flake8-typing-imports, checks that typing imports are properly guarded
+  "flake8-typing-imports",
+  # Flake8-unused-arguments helps ensure no unused arguments accumulate
+  "flake8-unused-arguments",
+  # Isort, used for standardizing the order of imports
+  "isort",
+  # MYPY, used for type checking.
+  "mypy",
+  # Pep8-naming, used to scan for conformant names
+  "pep8-naming",
+  # Pre-commit, used for running pre-commit scripts
+  "pre-commit",
+  # Pyflakes, checks Python source files for errors.
+  "pyflakes",
+  # Radon, a static source analyzer which computes complexity of function definitions.
+  "radon",
+  # Types-*, type stubs for various libraries
+  "types-requests",
+  "types-setuptools",
+  "types-sqlalchemy",
+  # ----------------------------- Testing ---------------------------------
+  # Pytest, used for testing.
+  "pytest",
+  # Pytest-Cov, a code coverage plugin for Pytest.
+  "pytest-cov",
+  # ------------------------------- Web -----------------------------------
+  # FastAPI, web framework
+  "fastapi",
+  # Gunicorn, a Python WSGI HTTP Server for UNIX
+  "gunicorn",
+  # Pydantic, data validation and settings management using Python type hinting
+  "pydantic",
+  # Python-dotenv, used for loading environment variables from .env files
+  "python-dotenv",
+  # Requests, used for making HTTP requests
+  "requests",
+  # Uvicorn, a lightning-fast ASGI server implementation
+  "uvicorn",
+  # ----------------------------- Database --------------------------------
+  # SQLAlchemy, used for database access
+  "sqlmodel",
+  # Psycopg2-binary, used for connecting to PostgreSQL
+  "psycopg2-binary",
+  # Squlalchemy-utils, used for database utilities
+  "sqlalchemy-utils",
+]
+
+[project.urls]
+source = "https://github.com/VerdantFox/games-fastapi"
+issues = "https://github.com/VerdantFox/games-fastapi/issues"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["api"]
+
+# --------------------------------------------------------------------------
+# Tool configurations
+# --------------------------------------------------------------------------
+# Bandit
+# Reference: https://bandit.readthedocs.io/en/latest/config.html
+[tool.bandit]
+# Note that any inline exceptions to the linter (signified with a trailing "# nosec" comment)
+# must contain a nearby comment explaining why the exception is considered safe or necessary.
+exclude_dirs = ["venv", "tests", "utils"]
+
+# Flake8
+# Reference: https://flake8.pycqa.org/en/latest/user/configuration.html
+# Flak8-pyproject is used to make configurations work with pyproject.toml
+# Reference: https://pypi.org/project/Flake8-pyproject/
+[tool.flake8]
+ignore = [
+  # W503: Line break before binary operator
+  # Black uses this sometimes for cleaner looking when splitting large lines.
+  "W503",
+  # B008: Do not perform function calls in argument defaults.
+  # FastAPI uses dependency injection, which requires function calls in defaults.
+  "B008",
+  # D209: Multi-line docstring closing quotes should be on a separate line
+  # Coflicts with "black" style.
+  "D209",
+]
+# Flake8 shouldn't check the following files/folders
+exclude = [
+  "venv",
+  "tmp",
+]
+# 80 chars is too short. Please soft cap line length at 100 chars, hard cap at 120 chars.
+max-line-length = 120
+# Check that the McCabe cyclomatic complexity of a function is not higher than this value
+max-complexity = 10
+
+# Isort
+# Reference: https://pycqa.github.io/isort/docs/configuration/options/
+[tool.isort]
+# While no setting exactly matches Black, these come closest.
+virtual_env = "venv"
+skip_glob = "venv/*"
+force_sort_within_sections = true
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+use_parentheses = true
+
+# Mypy
+# Reference: https://mypy.readthedocs.io/en/stable/config_file.html
+[tool.mypy]
+# Use the Pydantic plugin for better checking of Pydantic models.
+# References: https://pydantic-docs.helpmanual.io/mypy_plugin/
+# https://numpy.org/devdocs/reference/typing.html#mypy-plugin
+plugins = ["pydantic.mypy"]
+exclude = "venv|tmp"
+
+python_version = 3.10
+
+check_untyped_defs = true
+# Require type annotations on all definitions.
+disallow_untyped_defs = true
+# Skip check against external imports that are missing type hints
+ignore_missing_imports = true
+# Require types to be marked as Optional if they support None.
+no_implicit_optional = true
+# Append an error code to each reported message.
+show_error_codes = true
+# Require types to overlap in order to allow equality comparisons.
+strict_equality = true
+# Report unnecessary "cast" calls.
+warn_redundant_casts = true
+# Report unnecessary "# type: ignore" directives.
+warn_unused_ignores = true

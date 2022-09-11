@@ -1,8 +1,8 @@
 """games: endpoints for /games."""
 from typing import Optional
 
-import pydantic
 from fastapi import APIRouter, Depends, HTTPException, Query
+import pydantic
 from sqlmodel import Session, col, select
 
 from api.database import get_session

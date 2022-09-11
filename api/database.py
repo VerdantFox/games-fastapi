@@ -1,4 +1,4 @@
-"""store: code for interacting with the postgres database"""
+"""store: code for interacting with the postgres database."""
 from typing import Generator
 from urllib.parse import quote_plus
 
@@ -10,7 +10,7 @@ from api.environment import settings
 
 
 def get_engine() -> Engine:  # pragma: no cover
-    """Get an engine to a database
+    """Get an engine to a database.
 
     Can connect to postgres or SQLite in memory, depending on settings.in_mem_db"""
     if settings.in_mem_db:
@@ -20,12 +20,12 @@ def get_engine() -> Engine:  # pragma: no cover
             poolclass=StaticPool,  # Use same in-memory db on different threads
         )
 
-    POSTGRES_DB_URL = (
+    postgres_db_url = (
         "postgresql+psycopg2://"
         f"{quote_plus(settings.postgres_user)}:{quote_plus(settings.postgres_password)}"
         f"@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
     )
-    return create_engine(POSTGRES_DB_URL, echo=settings.echo_db)
+    return create_engine(postgres_db_url, echo=settings.echo_db)
 
 
 engine = get_engine()
