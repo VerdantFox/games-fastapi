@@ -11,7 +11,7 @@ class MatchRequirements:
 
     root_dir = Path(__file__).parent.parent
     pre_commit_file = root_dir / ".pre-commit-config.yaml"
-    requirements_file = root_dir / "requirements.txt"
+    requirements_file = root_dir / "requirements-dev.txt"
     pyproject_file = root_dir / "pyproject.toml"
 
     def __init__(self) -> None:
@@ -26,6 +26,7 @@ class MatchRequirements:
         """Load dependencies from pyproject.toml."""
         pyproject = toml.load(self.pyproject_file)
         self.pyproject_deps = pyproject["project"]["dependencies"]
+        self.pyproject_deps.extend(pyproject["project"]["optional-dependencies"]["dev"])
 
     def load_pre_commit_config(self) -> None:
         """Load pre-commit config."""
@@ -60,6 +61,26 @@ class MatchRequirements:
             additional_deps = hook.get("additional_dependencies", [])
             for dep in additional_deps:
                 self.load_pre_commit_additional_dep(dep)
+        self.load_local_additional_deps(dep)
+
+    def get_local_repo(self) -> dict:  # sourcery skip: use-next
+        """Get local repo from pre-commit config."""
+        for repo in self.pre_commit_config["repos"]:
+            if repo["repo"] == "local":
+                return repo
+        return {}
+
+    def load_local_additional_deps(self, dep: str) -> None:
+        """Load local an additional dependency from pre-commit."""
+        local_repo = self.get_local_repo()
+        if not local_repo:
+            return
+        for hook in local_repo["hooks"]:
+            if hook.get("language") != "python":
+                continue
+            additional_deps = hook.get("additional_dependencies", [])
+            for dep in additional_deps:
+                self.load_pre_commit_additional_dep(dep)
 
     @staticmethod
     def remove_comment(line: str) -> str:
@@ -86,7 +107,7 @@ class MatchRequirements:
             self.exit_code = 1
 
     def main(self) -> None:
-        """Run main function."""
+        """Run main, coordinating function."""
         self.load_pyproject_deps()
         self.load_pre_commit_config()
         self.load_pre_commit_reqs()

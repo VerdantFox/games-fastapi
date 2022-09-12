@@ -90,5 +90,13 @@ repos:
         name: match-requirements
         entry: python ./utils/match-requirements.py
         language: python
+        language_version: "3.10"
         pass_filenames: false
-        files: ".pre-commit-config.yaml|requirements.txt|pyproject.toml"
+        files: ".pre-commit-config.yaml|requirements-prod.txt|requirements-dev.txt|pyproject.toml"
+      - id: ensure-prod-reqs
+        name: ensure-prod-reqs
+        entry: python ./utils/ensure-prod-reqs.py
+        language: python
+        language_version: "3.10"
+        pass_filenames: false
+        files: "requirements-prod.txt|pyproject.toml|api/*.py"

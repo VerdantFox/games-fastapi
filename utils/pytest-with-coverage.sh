@@ -10,3 +10,5 @@ python -m pytest tests/ \
     --cov=tests \
     --cov=api \
     "$@"
+
+rm .coverage

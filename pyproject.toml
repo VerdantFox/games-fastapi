@@ -29,6 +29,30 @@ maintainers = [
 # established by PyPA:
 #   https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [
+  # ------------------------------- Web -----------------------------------
+  # FastAPI, web framework
+  "fastapi",
+  # Gunicorn, a Python WSGI HTTP Server for UNIX
+  "gunicorn",
+  # Pydantic, data validation and settings management using Python type hinting
+  "pydantic",
+  # Python-dotenv, used for loading environment variables from .env files
+  "python-dotenv",
+  # Requests, used for making HTTP requests
+  "requests",
+  # Uvicorn, a lightning-fast ASGI server implementation
+  "uvicorn",
+  # ----------------------------- Database --------------------------------
+  # SQLAlchemy, used for database access
+  "sqlmodel",
+  # Psycopg2-binary, used for connecting to PostgreSQL
+  "psycopg2-binary",
+  # Squlalchemy-utils, used for database utilities
+  "sqlalchemy-utils",
+]
+
+[project.optional-dependencies]
+dev = [
   # ----------------------------- Code quality -----------------------------
   # Bandit, used for checks of common Python security problems
   "bandit",
@@ -62,6 +86,8 @@ dependencies = [
   "mypy",
   # Pep8-naming, used to scan for conformant names
   "pep8-naming",
+  # Pipreqs, used to check project imported dependencies in script
+  "pipreqs",
   # Pre-commit, used for running pre-commit scripts
   "pre-commit",
   # Pyflakes, checks Python source files for errors.
@@ -81,30 +107,10 @@ dependencies = [
   "pytest",
   # Pytest-Cov, a code coverage plugin for Pytest.
   "pytest-cov",
-  # ------------------------------- Web -----------------------------------
-  # FastAPI, web framework
-  "fastapi",
-  # Gunicorn, a Python WSGI HTTP Server for UNIX
-  "gunicorn",
-  # Pydantic, data validation and settings management using Python type hinting
-  "pydantic",
-  # Python-dotenv, used for loading environment variables from .env files
-  "python-dotenv",
-  # Requests, used for making HTTP requests
-  "requests",
-  # Uvicorn, a lightning-fast ASGI server implementation
-  "uvicorn",
-  # ----------------------------- Database --------------------------------
-  # SQLAlchemy, used for database access
-  "sqlmodel",
-  # Psycopg2-binary, used for connecting to PostgreSQL
-  "psycopg2-binary",
-  # Squlalchemy-utils, used for database utilities
-  "sqlalchemy-utils",
   # ------------------------------- Misc ----------------------------------
   # Toml, used for parsing TOML files
   "toml",
-    # PyYAML, used for parsing YAML files
+  # PyYAML, used for parsing YAML files
   "PyYAML",
 ]
 
