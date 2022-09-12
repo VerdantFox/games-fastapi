@@ -44,10 +44,12 @@ dependencies = [
   "flake8-comprehensions",
   # Flake8-docstrings, used to verify docstrings
   "flake8-docstrings",
+  # flake8-plugin-utils, provides base classes and utils for flake8 plugin writing.
+  "flake8-plugin-utils",
   # Flake8-polyfill, provides compatibility helpers for Flake8 plugins
   "flake8-polyfill",
   # flake8-pyproject, used to configure flake8 with pyproject.toml
-    "flake8-pyproject",
+  "Flake8-pyproject",
   # Flake8-pytest-style scans the style of pytest sources
   "flake8-pytest-style",
   # Flake8-typing-imports, checks that typing imports are properly guarded
@@ -67,9 +69,13 @@ dependencies = [
   # Radon, a static source analyzer which computes complexity of function definitions.
   "radon",
   # Types-*, type stubs for various libraries
+  "types-PyYAML",
   "types-requests",
   "types-setuptools",
-  "types-sqlalchemy",
+  "types-SQLAlchemy",
+  "types-toml",
+  "types-urllib3",
+  "typing_extensions",
   # ----------------------------- Testing ---------------------------------
   # Pytest, used for testing.
   "pytest",
@@ -95,6 +101,11 @@ dependencies = [
   "psycopg2-binary",
   # Squlalchemy-utils, used for database utilities
   "sqlalchemy-utils",
+  # ------------------------------- Misc ----------------------------------
+  # Toml, used for parsing TOML files
+  "toml",
+    # PyYAML, used for parsing YAML files
+  "PyYAML",
 ]
 
 [project.urls]
@@ -116,7 +127,7 @@ where = ["api"]
 [tool.bandit]
 # Note that any inline exceptions to the linter (signified with a trailing "# nosec" comment)
 # must contain a nearby comment explaining why the exception is considered safe or necessary.
-exclude_dirs = ["venv", "tests", "utils"]
+exclude_dirs = ["venv", "tests"]
 
 # Flake8
 # Reference: https://flake8.pycqa.org/en/latest/user/configuration.html
@@ -165,7 +176,7 @@ use_parentheses = true
 plugins = ["pydantic.mypy"]
 exclude = "venv|tmp"
 
-python_version = 3.10
+python_version = "3.10"
 
 check_untyped_defs = true
 # Require type annotations on all definitions.
