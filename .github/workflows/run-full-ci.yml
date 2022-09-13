@@ -35,7 +35,6 @@ jobs:
     env:
       POSTGRES_HOST: localhost
       POSTGRES_DB: ci_db
-      POSTGRES_PORT: 5432
       POSTGRES_USER: postgres_user
       POSTGRES_PASSWORD: postgres_pw
     services:
@@ -48,6 +47,10 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        env:
+          POSTGRES_DB: ci_db
+          POSTGRES_USERNAME: postgres_user
+          POSTGRES_PASSWORD: postgres_pw
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
