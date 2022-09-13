@@ -14,7 +14,7 @@ cd "$(dirname "$0")/.." || return
 # ---------------------------------------------------------------------------
 # GLOBALS
 # ---------------------------------------------------------------------------
-# crontab can't find docker-compose without PATH defined
+# crontab can't find docker compose without PATH defined
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 # Needed for correct timezone with 'date' calls
 export TZ=America/Denver
@@ -26,6 +26,8 @@ then
 else
     BUILD_EXTRAS=( "--no-cache" "--pull" )
 fi
+COMPOSE_EXTRAS=( "--file=docker/docker-compose.yaml" "--project-directory=." )
+# DATE="$(date +"%Y-%m-%d")"
 
 # ---------------------------------------------------------------------------
 # FUNCTIONS
@@ -69,13 +71,15 @@ ENDCRON
 
 log INFO "Building latest images..."
 # shellcheck disable=SC2068
-docker compose build ${BUILD_EXTRAS[@]:-}
+docker compose ${COMPOSE_EXTRAS[@]:-} build ${BUILD_EXTRAS[@]:-}
 
 log INFO "Stopping and removing containers..."
-docker compose down
+# shellcheck disable=SC2068
+docker compose ${COMPOSE_EXTRAS[@]:-} down
 
 log INFO "Starting containers..."
-docker compose up --detach
+# shellcheck disable=SC2068
+docker compose ${COMPOSE_EXTRAS[@]:-} up --detach
 
 log INFO "Removing dangling images..."
 docker image prune --force

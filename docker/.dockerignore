@@ -1,0 +1,11 @@
+# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+.git
+.mypy_cache
+.pytest_cache
+htmlcov/
+tmp/
+data/
+**/logs/
+venv/
+.coverage
+**/__pycache__

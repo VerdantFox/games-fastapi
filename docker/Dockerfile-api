@@ -1,0 +1,55 @@
+# Games-fastapi fastapi Dockerfile
+
+# Pull official base image
+FROM python:3.10.6-slim-buster AS build
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends netcat
+# Create a python virtual environment
+RUN python -m venv /opt/venv
+# Make sure we use the virtualenv:
+ENV PATH="/opt/venv/bin:$PATH"
+# Install python dependencies
+COPY ./requirements-prod.txt .
+RUN --mount=type=cache,target=/root/.cache \
+    python -m pip install --upgrade pip
+RUN --mount=type=cache,target=/root/.cache \
+    python -m pip install -r requirements-prod.txt
+
+
+# Pull official base image
+FROM python:3.10.6-slim-buster
+
+COPY --from=build /opt/venv /opt/venv
+
+LABEL maintainer="Theodore Williams <theodore.f.williams@gmail.com>"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV APP_HOME=/games-fastapi
+# Make sure we use the virtualenv:
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create the appropriate directories
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+
+# Create the games-fastapi user
+# This user should have same UID as user that cloned repo
+RUN addgroup --system games-fastapi \
+    && adduser --system --group games-fastapi \
+    && usermod -u 1000 games-fastapi
+
+# Copy all files into the APP_HOME directory
+COPY api/ $APP_HOME/api
+
+# chown all the files to the games-fastapi user
+RUN chown -R games-fastapi:games-fastapi $APP_HOME
+
+# Change to the app user
+USER games-fastapi
+
+EXPOSE 8000
+
+CMD [ "exec", "$@" ]
