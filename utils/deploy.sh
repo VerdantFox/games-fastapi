@@ -102,7 +102,7 @@ docker compose ${COMPOSE_EXTRAS[@]:-} up --detach
 log INFO "Removing dangling images..."
 docker image prune --force
 
-log INFO "Establishing docker container loggiging..."
+log INFO "Establishing docker container logging..."
 # Logs dir created earlier, so no need to re-create here
 touch "$NGINX_LOG"
 docker logs --follow nginx &>> "$NGINX_LOG" &
