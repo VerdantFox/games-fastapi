@@ -3,16 +3,18 @@
 # Pull official base image
 FROM python:3.10.6-slim-buster AS build
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends netcat
 # Create a python virtual environment
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
 # Install python dependencies
+WORKDIR /
 COPY ./requirements-prod.txt .
+# Install production dependencies with a cache for quicker future installs
+# hadolint ignore=DL3013,DL3042
 RUN --mount=type=cache,target=/root/.cache \
     python -m pip install --upgrade pip
+# hadolint ignore=DL3042,DL3059
 RUN --mount=type=cache,target=/root/.cache \
     python -m pip install -r requirements-prod.txt
 

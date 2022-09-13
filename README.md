@@ -6,10 +6,11 @@ Example FastAPI application for CRUD operations of food games against a database
 
 - Build FastAPI postgres game API
 - Test the API
+- Handling app dependencies
 - My top linting tools for a python app
+- Deploy a FastAPI application to DigitalOcean with docker compose and nginx
 - Run GitHub actions pipeline to lint and test a Postgres application
 - Run GitLab-CI pipeline to lint and test a Postgres application
-- Deploy a FastAPI application to DigitalOcean with docker compose and nginx
 - Continuous deployment for FastAPI application in DigitalOcean
 - SQLModel migrations
 - FastAPI Authentication and permissions

@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: ./docker/Dockerfile-api
+      dockerfile: ./docker/Dockerfile.api
     env_file:
       # environment variables from later env files override those from earlier ones
       - .env.dev
@@ -34,7 +34,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: ./docker/Dockerfile-nginx
+      dockerfile: ./docker/Dockerfile.nginx
     container_name: nginx
     restart: unless-stopped
     ports:
