@@ -31,9 +31,14 @@ jobs:
   # - Runs our pytests
   test:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: ci_db
+      POSTGRES_USERNAME: postgres_user
+      POSTGRES_PASSWORD: postgres_pw
     services:
       postgres:
-        image: postgres
+        image: postgres:13.3
         ports:
           - 5432:5432
         options: >-
@@ -57,11 +62,6 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Test with pytest
         run: pytest --tb=line
-        env:
-          POSTGRES_HOST: localhost
-          POSTGRES_DB: ci_db
-          POSTGRES_USERNAME: postgres_user
-          POSTGRES_PASSWORD: postgres_pw
   # Release job: (Run on push to the 'main' branch)
   # - Only run if 'lint' and 'test' jobs succeed
   # - Checks out the 'release-branch' (assumes 'release-branch' exists)
