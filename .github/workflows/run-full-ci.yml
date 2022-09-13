@@ -6,6 +6,7 @@
 # For checking out a branch see: https://github.com/actions/checkout
 # For setting up python see: https://github.com/actions/setup-python
 # For running pre-commit see: https://github.com/pre-commit/action
+# For setting up postgres service container see: https://docs.github.com/en/actions/using-containerized-services/creating-postgresql-service-containers
 
 name: Run full CI
 on: push
@@ -34,7 +35,8 @@ jobs:
     env:
       POSTGRES_HOST: localhost
       POSTGRES_DB: ci_db
-      POSTGRES_USERNAME: postgres_user
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres_user
       POSTGRES_PASSWORD: postgres_pw
     services:
       postgres:
@@ -46,10 +48,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        env:
-          POSTGRES_DB: ci_db
-          POSTGRES_USERNAME: postgres_user
-          POSTGRES_PASSWORD: postgres_pw
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
