@@ -18,8 +18,11 @@ cd "$(dirname "$0")/.." || return
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 # Needed for correct timezone with 'date' calls
 export TZ=America/Denver
-CRON_LOG="$(pwd)/logs/$(date +"%Y-%m-%d")_crontab.log"
-
+DATE="$(date +"%Y-%m-%d")"
+CRON_LOG="$(pwd)/logs/${DATE}_crontab.log"
+NGINX_LOG="$(pwd)/logs/${DATE}_nginx.log"
+FASTAPI_LOG="$(pwd)/logs/${DATE}_fastapi.log"
+POSTGRES_LOG="$(pwd)/logs/${DATE}_postgres.log"
 if [[ -z "${FROM_SCRATCH:-}" ]]
 then
     unset BUILD_EXTRAS
@@ -27,7 +30,6 @@ else
     BUILD_EXTRAS=( "--no-cache" "--pull" )
 fi
 COMPOSE_EXTRAS=( "--file=docker/docker-compose.yaml" "--project-directory=." )
-# DATE="$(date +"%Y-%m-%d")"
 
 # ---------------------------------------------------------------------------
 # FUNCTIONS
@@ -41,22 +43,32 @@ log() {
 # ---------------------------------------------------------------------------
 # SCRIPT START
 # ---------------------------------------------------------------------------
-log INFO "Running utils/deploy.sh with vars: FROM_SCRATCH=${FROM_SCRATCH:-}, IF_NEEDED=${IF_NEEDED:-}"
+log INFO "Running utils/deploy.sh with vars: FROM_SCRATCH=${FROM_SCRATCH:-}, IF_NEEDED=${IF_NEEDED:-}, DEVELOPMENT=${DEVELOPMENT:-}"
 
 # Set up log for crontab jobs (including deployment log)
 mkdir -p "$(pwd)/logs"
-touch "$CRON_LOG"
 
-log INFO "Rebasing latest release-branch..."
-git fetch origin --prune
-checkout_result="$(git checkout release-branch)"
-echo "$checkout_result"
-if [[ "$checkout_result" == *"Your branch is up to date with 'origin/release-branch'."* && "${IF_NEEDED:-}" == "1" ]]; then
-    # Nothing to do then.
-    exit 0
+# Default to deploying the "release-branch" branch
+# (can override to current branch with DEVELOPMENT=1)
+if [ "${DEVELOPMENT:-}" != "1" ]
+then
+    log INFO "Rebasing latest release-branch..."
+    git fetch origin --prune
+    checkout_result="$(git checkout release-branch)"
+    echo "$checkout_result"
+    if [[ "$checkout_result" == *"Your branch is up to date with 'origin/release-branch'."* && "${IF_NEEDED:-}" == "1" ]]; then
+        # Nothing to do then.
+        exit 0
+    fi
+    git rebase
 fi
-git rebase
 
+
+# Default to installing the below crontabs
+# (can override to not install with DEVELOPMENT=1)
+if [ "${DEVELOPMENT:-}" != "1" ]
+then
+touch "$CRON_LOG"
 log INFO "Installing new crontab..."
 crontab << ENDCRON
 # Games-FastAPI scheduled tasks
@@ -68,6 +80,7 @@ crontab << ENDCRON
 # Remove week-old logs: every day at 3:07AM.
 7 3 * * * find "$(pwd)/logs/" -mtime +7  -exec rm {} \; >> "$CRON_LOG"  2>&1
 ENDCRON
+fi
 
 log INFO "Building latest images..."
 # shellcheck disable=SC2068
@@ -83,3 +96,12 @@ docker compose ${COMPOSE_EXTRAS[@]:-} up --detach
 
 log INFO "Removing dangling images..."
 docker image prune --force
+
+log INFO "Establishing docker container loggiging..."
+# Logs dir created earlier, so no need to re-create here
+touch "$NGINX_LOG"
+docker logs --follow nginx &>> "$NGINX_LOG" &
+touch "$FASTAPI_LOG"
+docker logs --follow fastapi &>> "$FASTAPI_LOG" &
+touch "$POSTGRES_LOG"
+docker logs --follow postgres &>> "$POSTGRES_LOG" &
