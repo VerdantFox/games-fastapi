@@ -35,8 +35,8 @@ jobs:
     env:
       POSTGRES_HOST: localhost
       POSTGRES_DB: ci_db
-      POSTGRES_USER: postgres_user
-      POSTGRES_PASSWORD: postgres_pw
+      POSTGRES_USER: ci_pg_user
+      POSTGRES_PASSWORD: ci_pg_pw
     services:
       postgres:
         image: postgres:13.3
@@ -49,8 +49,8 @@ jobs:
           --health-retries 5
         env:
           POSTGRES_DB: ci_db
-          POSTGRES_USERNAME: postgres_user
-          POSTGRES_PASSWORD: postgres_pw
+          POSTGRES_USER: ci_pg_user
+          POSTGRES_PASSWORD: ci_pg_pw
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
