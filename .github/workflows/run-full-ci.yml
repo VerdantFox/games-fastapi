@@ -1,0 +1,63 @@
+# This GitHub actions workflow runs 'lint' and 'tests' job against all branches on 'git push' to those branches.
+# It updates the 'release-branch' if the 'lint' and 'test' jobs succeed for 'main' branch pushes.
+#
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# For if/then context see: https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#job-status-check-functions
+# For checking out a branch see: https://github.com/actions/checkout
+# For setting up python see: https://github.com/actions/setup-python
+# For running pre-commit see: https://github.com/pre-commit/action
+
+name: Run full CI
+on: push
+jobs:
+  # Lint job: (Run on all branch pushes)
+  # - Checks out our branch
+  # - Installs python
+  # - Sets up the pre-commit cache and runs pre-commit
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - uses: pre-commit/action@v3.0.0
+  # Test job: (Run on all branch pushes)
+  # - Checks out our branch
+  # - Installs python and establishes pip cache
+  # - Installs our dev dependencies
+  # - Runs our pytests
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Test with pytest
+        run: pytest --tb=line
+  # Release job: (Run on push to the 'main' branch)
+  # - Only run if 'lint' and 'test' jobs succeed
+  # - Checks out the 'release-branch' (assumes 'release-branch' exists)
+  # - Sets up some git credentials and fetches the latest git origin
+  # - Rebases the 'release-branch' to reflect the 'main' branch
+  # - Pushes the updated 'release-branch' to our repository
+  release:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: "release-branch"
+      - name: Update Release Branch
+        run: |
+          git config user.email "verdantfoxx@gmail.com"
+          git config user.name "games-fastapi CI Runner"
+          git fetch origin
+          git rebase --strategy=ours origin/main
+          git push origin HEAD --force
