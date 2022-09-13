@@ -94,6 +94,8 @@ repos:
         pass_filenames: false
         files: ".pre-commit-config.yaml|requirements-prod.txt|requirements-dev.txt|pyproject.toml"
       - id: ensure-prod-reqs
+        additional_dependencies:
+          - pipreqs==0.4.11
         name: ensure-prod-reqs
         entry: python ./utils/ensure-prod-reqs.py
         language: python
